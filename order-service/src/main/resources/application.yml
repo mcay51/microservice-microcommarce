@@ -1,16 +1,9 @@
-server:
-  port: 8082
-
 spring:
   application:
     name: order-service
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/microcommerce
-    username: postgres
-    password: postgres
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+  config:
+    import: "configserver:" # Config Server'dan konfigürasyonları al
+  cloud:
+    config:
+      uri: http://localhost:8888 # Config Server URL
+      fail-fast: true # Bağlantı hatası durumunda uygulama başarısız olsun

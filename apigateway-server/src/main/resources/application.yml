@@ -1,20 +1,9 @@
 spring:
+  application:
+    name: apigateway-service
+  config:
+    import: "configserver:" # Config Server'dan konfigürasyonları al
   cloud:
-    gateway:
-      routes:
-        - id: product-service
-          uri: lb://product-service
-          predicates:
-            - Path=/products/**
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/orders/**
-        - id: stock-service
-          uri: lb://stock-service
-          predicates:
-            - Path=/stocks/**
-  discovery:
-    client:
-      registration:
-        enabled: true
+    config:
+      uri: http://localhost:8888 # Config Server URL
+      fail-fast: true # Bağlantı hatası durumunda uygulama başarısız olsun
