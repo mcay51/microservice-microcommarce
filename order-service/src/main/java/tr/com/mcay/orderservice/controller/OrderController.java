@@ -13,7 +13,7 @@ import java.util.List;
 public class OrderController {
 
 
-    private OrderService orderService;
+    private final OrderService orderService;
     @Autowired
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -35,7 +35,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public Order updateOrder(@PathVariable Long id, @RequestBody Orders order) {
+    public Orders updateOrder(@PathVariable Long id, @RequestBody Orders order) {
         order.setId(id);
         return orderService.updateOrder(order);
     }
