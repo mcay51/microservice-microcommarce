@@ -1,0 +1,82 @@
+version: '3'
+services:
+  eureka-server:
+    image: eureka-server
+    container_name: eureka-server
+    build:
+        context: ./eureka-server
+    ports:
+        - "8761:8761"
+    networks:
+        - microcommerce-network
+
+  config-server:
+    image: config-server
+    container_name: config-server
+    build:
+        context: ./config-server
+    ports:
+        - "8888:8888"
+    networks:
+        - microcommerce-network
+
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - microcommerce-network
+
+  product-service:
+    image: product-service
+    container_name: product-service
+    build:
+      context: ./product-service
+    ports:
+      - "8081:8081"
+    networks:
+      - microcommerce-network
+
+  order-service:
+    image: order-service
+    container_name: order-service
+    build:
+      context: ./order-service
+    ports:
+      - "8082:8082"
+    networks:
+      - microcommerce-network
+
+  stock-service:
+    image: stock-service
+    container_name: stock-service
+    build:
+      context: ./stock-service
+    ports:
+      - "8083:8083"
+    networks:
+      - microcommerce-network
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microcommerce
+    ports:
+      - "5432:5432"
+    networks:
+      - microcommerce-network
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+networks:
+  microcommerce-network:
+    driver: bridge
