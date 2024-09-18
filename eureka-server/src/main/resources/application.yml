@@ -7,5 +7,5 @@ spring:
     import: "configserver:" # Config Server'dan konfigürasyonları al
   cloud:
     config:
-     uri: http://localhost:8888 # Config Server URL
-     fail-fast: true # Bağlantı hatası durumunda uygulama başarısız olsun
+      uri: http://config-server:8888 # Config Server URL
+      fail-fast: true # Bağlantı hatası durumunda uygulama başarısız olsun

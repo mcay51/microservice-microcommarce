@@ -1,82 +1,117 @@
-version: '3'
+version: '3.8'
 services:
-  eureka-server:
-    image: eureka-server
-    container_name: eureka-server
-    build:
-        context: ./eureka-server
-    ports:
-        - "8761:8761"
-    networks:
-        - microcommerce-network
-
   config-server:
-    image: config-server
-    container_name: config-server
     build:
-        context: ./config-server
+      context : ./config-server
+    image: microcommerce/config-server:latest
     ports:
-        - "8888:8888"
+      - "8888:8888"
     networks:
-        - microcommerce-network
+      - microservice-network
 
-  api-gateway:
-    image: api-gateway
-    container_name: api-gateway
+  eureka-server:
     build:
-      context: ./api-gateway
+      context : ./eureka-server
+    image: microcommerce/eureka-server:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+
+  apigateway-server:
+    build:
+      context : ./apigateway-server
+    image: microcommerce/apigateway-server:latest
     ports:
       - "8080:8080"
     networks:
-      - microcommerce-network
+      - microservice-network
+    depends_on:
+      - eureka-server
+      - config-server
 
   product-service:
-    image: product-service
-    container_name: product-service
     build:
-      context: ./product-service
+      context : ./product-service
+    image: microcommerce/product-service:latest
     ports:
       - "8081:8081"
     networks:
-      - microcommerce-network
+      - microservice-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - eureka-server
+      - config-server
+      - postgres
 
   order-service:
-    image: order-service
-    container_name: order-service
     build:
-      context: ./order-service
+      context : ./order-service
+    image: microcommerce/order-service:latest
     ports:
       - "8082:8082"
     networks:
-      - microcommerce-network
+      - microservice-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - eureka-server
+      - config-server
+      - postgres
 
   stock-service:
-    image: stock-service
-    container_name: stock-service
     build:
-      context: ./stock-service
+      context : ./stock-service
+    image: microcommerce/stock-service:latest
     ports:
       - "8083:8083"
     networks:
-      - microcommerce-network
-  postgres:
-    image: postgres:13
-    container_name: postgres
+      - microservice-network
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - eureka-server
+      - config-server
+      - postgres
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - microservice-network
+    depends_on:
+      - apigateway-server
+      - product-service
+      - order-service
+      - stock-service
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: orderdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: microcommerce
     ports:
       - "5432:5432"
     networks:
-      - microcommerce-network
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
+      - microservice-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
 networks:
-  microcommerce-network:
+  microservice-network:
     driver: bridge
