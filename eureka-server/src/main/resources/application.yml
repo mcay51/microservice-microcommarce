@@ -1,6 +1,8 @@
+server:
+  port: 8761
 spring:
   application:
-    name: eureka-service
+    name: eureka-server
   config:
     import: "configserver:" # Config Server'dan konfigürasyonları al
   cloud:

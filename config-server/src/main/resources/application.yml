@@ -8,6 +8,7 @@ spring:
       server:
         git:
           uri: https://github.com/mcay51/config-repo
+          default-label: master
 
 eureka:
   client:

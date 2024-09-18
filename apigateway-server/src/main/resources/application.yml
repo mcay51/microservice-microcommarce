@@ -1,6 +1,6 @@
 spring:
   application:
-    name: apigateway-service
+    name: apigateway-server
   config:
     import: "configserver:" # Config Server'dan konfigürasyonları al
   cloud:
