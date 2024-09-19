@@ -17,6 +17,8 @@ services:
       - "8761:8761"
     networks:
       - microservice-network
+    depends_on:
+      - config-server
 
   apigateway-server:
     build:
@@ -27,8 +29,9 @@ services:
     networks:
       - microservice-network
     depends_on:
-      - eureka-server
       - config-server
+      - eureka-server
+
 
   product-service:
     build:
@@ -43,8 +46,9 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
-      - eureka-server
       - config-server
+      - eureka-server
+      - apigateway-server
       - postgres
 
   order-service:
@@ -60,8 +64,9 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
-      - eureka-server
       - config-server
+      - eureka-server
+      - apigateway-server
       - postgres
 
   stock-service:
@@ -77,8 +82,9 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
-      - eureka-server
       - config-server
+      - eureka-server
+      - apigateway-server
       - postgres
 
   nginx:
