@@ -1,5 +1,7 @@
 package tr.com.mcay.orderservice.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.web.client.RestTemplate;
 import tr.com.mcay.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,12 @@ import java.util.List;
 
 @Service
 public class OrderService {
-
-
+    private final RestTemplate restTemplate;
     private final OrderRepository orderRepository;
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository,RestTemplate restTemplate) {
         this.orderRepository = orderRepository;
+        this.restTemplate = restTemplate;
     }
 
     public List<Orders> getAllOrders() {
@@ -35,5 +37,12 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+    @CircuitBreaker(name = "productService", fallbackMethod = "fallbackProductService")
+    public String getProductDetails(Long productId) {
+        return restTemplate.getForObject("http://product-service:8081/products/" + productId, String.class);
+    }
+    public String fallbackProductService(Long productId, Throwable throwable) {
+        return "Product service is currently unavailable. Please try again later.";
     }
 }
