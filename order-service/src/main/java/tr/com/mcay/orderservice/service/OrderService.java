@@ -1,6 +1,7 @@
 package tr.com.mcay.orderservice.service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.web.client.RestTemplate;
 import tr.com.mcay.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,11 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
     @CircuitBreaker(name = "productService", fallbackMethod = "fallbackProductService")
+    @RateLimiter(name = "getProductDetailsRateLimiter")
     public String getProductDetails(Long productId) {
         return restTemplate.getForObject("http://product-service:8081/products/" + productId, String.class);
     }
     public String fallbackProductService(Long productId, Throwable throwable) {
-        return "Product service is currently unavailable. Please try again later.";
+        return "Product service is currently unavailable. Please try again later. "+throwable.getMessage();
     }
 }
