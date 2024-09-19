@@ -48,5 +48,9 @@ public class OrderController {
     public String getProductDetails(@PathVariable Long id) {
         return orderService.getProductDetails(id);
     }
+    @GetMapping("/product/retry/{id}")
+    public String getProductDetailsRetry(@PathVariable Long id) {
+        return orderService.getProductDetailsRetry(id);
+    }
 
 }

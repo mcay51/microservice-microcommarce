@@ -2,6 +2,7 @@ package tr.com.mcay.orderservice.service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.web.client.RestTemplate;
 import tr.com.mcay.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,20 @@ public class OrderService {
     }
     @CircuitBreaker(name = "productService", fallbackMethod = "fallbackProductService")
     @RateLimiter(name = "getProductDetailsRateLimiter")
+    @Retry(name = "getProductDetailsRetry",fallbackMethod ="fallbackProductServiceRetry" )
     public String getProductDetails(Long productId) {
         return restTemplate.getForObject("http://product-service:8081/products/" + productId, String.class);
     }
+
+    @Retry(name = "getProductDetailsRetry",fallbackMethod ="fallbackProductServiceRetry" )
+    public String getProductDetailsRetry(Long productId) {
+        return restTemplate.getForObject("http://product-service:8081/products/" + productId, String.class);
+    }
     public String fallbackProductService(Long productId, Throwable throwable) {
+        return "Product service is currently unavailable. Please try again later. "+throwable.getMessage();
+    }
+    public String fallbackProductServiceRetry(Long productId, Throwable throwable) {
+        System.out.println("Yeniden Deneme Yapılıyor");
         return "Product service is currently unavailable. Please try again later. "+throwable.getMessage();
     }
 }
