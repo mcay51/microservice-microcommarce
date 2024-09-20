@@ -2,6 +2,7 @@ package tr.com.mcay.orderservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import tr.com.mcay.orderservice.dto.StockRequest;
 import tr.com.mcay.orderservice.model.Orders;
 import tr.com.mcay.orderservice.service.OrderService;
 
@@ -51,6 +52,10 @@ public class OrderController {
     @GetMapping("/product/retry/{id}")
     public String getProductDetailsRetry(@PathVariable Long id) {
         return orderService.getProductDetailsRetry(id);
+    }
+    @PostMapping("/create/stock")
+    public String createStock(@RequestBody StockRequest stockRequest) {
+        return orderService.createStock(stockRequest.getProductId(),stockRequest.getQuantity());
     }
 
 }
